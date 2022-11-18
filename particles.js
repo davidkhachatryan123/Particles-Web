@@ -25,7 +25,7 @@ $(window).resize(function() {
 
 $(document).mousemove(function(event) {
   mousePoint.x = event.clientX;
-  mousePoint.y = event.clientY;
+  mousePoint.y = event.clientY + window.pageYOffset;
 });
 $(document).mouseenter(function () {
   trackMousePoint = true;
