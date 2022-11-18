@@ -15,9 +15,17 @@ html, body {
   width: 100%;
   height: 100vh;
 
+  position: relative;
+
   overflow: hidden;
 }
 
 #particles {
   background: linear-gradient(#000202, #002828);
+
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  will-change: transform;
 }

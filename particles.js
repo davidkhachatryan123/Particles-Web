@@ -1,4 +1,4 @@
-let pointsCount = 100,
+let pointsCount = 70,
     pointsSpeed = 1,
     pointsColor = '#2b8265',
     pointsSize = 5;
@@ -8,58 +8,31 @@ let linesColor = '#ffffff',
     lineThickness = 0.01;
 
 
-let points = [];
-
-
-function generatePoints(count) {
-  for(let i = 0; i < count; i++) {
-    points.push({
-      x: getRandomIntInRange(0, canvas.width),
-      y: getRandomIntInRange(0, canvas.height),
-      direction: Math.random() * 2 * Math.PI
-    });
-  }
-}
-
-function drawCircle(x, y) {
-  ctx.beginPath();
-
-  ctx.arc(x, y, pointsSize, 0, 2 * Math.PI);
-
-  ctx.fill();
-}
-
-function line(x1, y1, x2, y2, thickness) {
-  ctx.beginPath();
-
-  ctx.lineWidth = thickness;
-  ctx.moveTo(x1, y1);
-  ctx.lineTo(x2, y2);
-
-  ctx.stroke();
-}
-
-function getVectorLength(x1, y1, x2, y2) {
-  return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-}
-
-function getRandomIntInRange(min, max) {
-  return Math.random() * (max - min) + min;
-}
-
-function map(value, fromSource, toSource, fromTarget, toTarget) {
-  return (value - fromSource) / (toSource - fromSource) * (toTarget - fromTarget) + fromTarget;
-}
-
+let mousePoint = {
+      x: 0,
+      y: 0
+    },
+    trackMousePoint = false,
+    points = [mousePoint];
 
 let canvas = document.getElementById('particles');
 let ctx = canvas.getContext('2d');
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
 
-ctx.fillStyle = pointsColor;
-ctx.strokeStyle = linesColor;
+$(window).resize(function() {
+  resizeCanvas();
+});
+
+$(document).mousemove(function(event) {
+  mousePoint.x = event.clientX;
+  mousePoint.y = event.clientY;
+});
+$(document).mouseenter(function () {
+  trackMousePoint = true;
+});
+$(document).mouseleave(function () {
+  trackMousePoint = false;
+});
 
 
 function animation() {
@@ -67,15 +40,18 @@ function animation() {
 
   ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
-  for (const point of points) {
-    point.x += pointsSpeed * Math.cos(point.direction);
-    point.y += pointsSpeed * Math.sin(point.direction);
+  if(trackMousePoint) drawCircle(mousePoint.x, mousePoint.y);
+  else points.pop();
 
-    if(point.x > canvas.width || point.x < 0 ||
-      point.y > canvas.height || point.y < 0) {
-        points.splice(points.indexOf(point), 1);
+  for(let i = trackMousePoint ? 1 : 0; i < points.length; i++) {
+    points[i].x += pointsSpeed * Math.cos(points[i].direction);
+    points[i].y += pointsSpeed * Math.sin(points[i].direction);
+
+    if(points[i].x > canvas.width || points[i].x < 0 ||
+      points[i].y > canvas.height || points[i].y < 0) {
+        points.splice(i, 1);
     } else {
-      drawCircle(point.x, point.y);
+      drawCircle(points[i].x, points[i].y);
     }
   }
 
@@ -100,4 +76,51 @@ function animation() {
   window.requestAnimationFrame(animation);
 }
 
+resizeCanvas();
 animation();
+
+
+function generatePoints(count) {
+  for(let i = 0; i < count; i++) {
+    points.push({
+      x: getRandomIntInRange(0, canvas.width),
+      y: getRandomIntInRange(0, canvas.height),
+      direction: Math.random() * 2 * Math.PI
+    });
+  }
+}
+function drawCircle(x, y) {
+  ctx.beginPath();
+
+  ctx.arc(x, y, pointsSize, 0, 2 * Math.PI);
+
+  ctx.fill();
+}
+
+function line(x1, y1, x2, y2, thickness) {
+  ctx.beginPath();
+
+  ctx.lineWidth = thickness;
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+
+  ctx.stroke();
+}
+function getVectorLength(x1, y1, x2, y2) {
+  return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+}
+
+function getRandomIntInRange(min, max) {
+  return Math.random() * (max - min) + min;
+}
+function map(value, fromSource, toSource, fromTarget, toTarget) {
+  return (value - fromSource) / (toSource - fromSource) * (toTarget - fromTarget) + fromTarget;
+}
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  ctx.fillStyle = pointsColor;
+  ctx.strokeStyle = linesColor;
+}
